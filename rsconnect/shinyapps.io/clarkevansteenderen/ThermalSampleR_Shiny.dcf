@@ -5,8 +5,8 @@ account: clarkevansteenderen
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2791541
-bundleId: 3624368
+bundleId: 3860305
 url: https://clarkevansteenderen.shinyapps.io/ThermalSampleR_Shiny/
-when: 1600007588.93034
+when: 1605367487.49232
 asMultiple: FALSE
 asStatic: FALSE

@@ -14,7 +14,7 @@
 
 *2019*
 
-*e-mail:* Guy: g.sutton@ru.ac.za | Clarke vsteenderen@gmail.com
+*e-mail:* Guy: g.sutton@ru.ac.za | Clarke: vsteenderen@gmail.com
 
 ---
 

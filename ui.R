@@ -15,12 +15,20 @@ library(magrittr)
 library(ggplot2)
 library(shinyFiles)
 library(dplyr)
+library(rhandsontable)
 
+ggthemes = list("Classic" = theme_classic(),
+                "Dark" = theme_dark(),
+                "Minimal" = theme_minimal(),
+                "Grey" = theme_grey(),
+                "Light" = theme_light(),
+                "Black/White" = theme_bw(),
+                "Void" = theme_void())
 
 shinyUI(fluidPage(
 
     #img(src='coldbug.jpg',  height = '250px', width = '200px', style = 'float:right;'),
-
+    
     # Application title
     titlePanel(h1(strong("ThermalSampleR",style = "color:red; font-size:130%"))),
 
@@ -32,13 +40,13 @@ shinyUI(fluidPage(
             %>% helper(type = "markdown", content = "thermalsampler_manual", colour = "darkblue", icon = "question-circle"),
             br(), br(),
             fileInput("inFile", "Select a thermal data .csv file", accept = c(".csv")),
-            htmlOutput("warning"), tags$head(tags$style("#warning{color: red; font-size: 15px;}")),
             br(),
             selectizeInput("example_data", strong("Select Example File to Download:"), choices = list.files("example_data/")),
             downloadButton("download_example", "Download Example"),
             br(), br(),
             selectInput("col.group", "Select Group Column:", choices=NULL),
             selectInput("col.response", "Select Response Column:", choices=NULL),
+            htmlOutput("warning"), tags$head(tags$style("#warning{color: red; font-size: 16px;}")),
             selectInput("col.inc", "Select Which Group/s to Include:", choices=NULL, multiple = T),
             h4(strong("BOOTSTRAP SIMULATION SETTINGS:")),
             br(),
@@ -56,6 +64,12 @@ shinyUI(fluidPage(
             h4(strong("PLOT SETTINGS:")),
             numericInput("nminplot", "Minimum sample size to extrapolate simulations", value = 3, min = 1),
             numericInput("nmaxplot", "Maximum sample size to extrapolate simulations", value = 15),
+            selectInput("colour_exp", "Select Experimental Data Colour:", choices = c(colors()), selected = "blue"),
+            selectInput("colour_extrap", "Select Extrapolation Data Colour:", choices = c(colors()), selected = "red"),
+            sliderInput("alpha", "Colour Transparency:", min = 0, max = 1, value = 0.2),
+            selectInput("legend", "Legend Position:", choices = c("top", "right", "bottom", "left", "none"), selected = "top"),
+            selectInput("ggtheme", "Select ggplot theme:", choices = names(ggthemes), selected = ggthemes["Classic"]),
+            br(),
             actionButton("plot", strong(" PLOT"), style="color: #fff; background-color: darkblue; border-color: white; font-size:120%", icon("pencil"))
 
         ),
@@ -68,7 +82,7 @@ shinyUI(fluidPage(
                 strong("PLOT ONE GROUP"),
                 br(), br(),
                 downloadButton("downloadplot_onegroup", "Download Plot", style="color: #fff; background-color: darkblue; border-color: white; font-size:120%"),
-                plotOutput("plotone") ),
+                plotOutput("plotone", width = 1000, height = 500) ),
 
 
             tabPanel(

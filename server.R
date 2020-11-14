@@ -3,7 +3,13 @@ library(shiny)
 library(magrittr)
 library(dplyr)
 
-
+ggthemes = list("Classic" = theme_classic(),
+                "Dark" = theme_dark(),
+                "Minimal" = theme_minimal(),
+                "Grey" = theme_grey(),
+                "Light" = theme_light(),
+                "Black/White" = theme_bw(),
+                "Void" = theme_void()) 
 
 # needed to add in the session argument here to get the updateSelectInput function to work
 shinyServer(function(session, input, output) {
@@ -39,7 +45,8 @@ shinyServer(function(session, input, output) {
         if (is.null(file1)) {
             return(NULL)
         } # stops the app crashing while the user hasn't uploaded anything yet
-
+        
+        
         data = read.csv(file1$datapath)
 
         # update the drop-down selection menus to show the column names in the uploaded data
@@ -74,7 +81,10 @@ shinyServer(function(session, input, output) {
                          iter = input$iter
                          n_minboots = input$nminboots
                          n_maxboots = input$nmaxboots
-
+                         
+                         if(length(groups_which)==0) output$warning = renderText("<b>Please select which group/s to include in the analysis.")
+                         else output$warning = renderText("")
+                         
                          if(input$setseed == 2) set.seed(input$seedval)
 
                          #output$text = renderText(length(groups_which))
@@ -86,7 +96,7 @@ shinyServer(function(session, input, output) {
                          #################################################################
                          # START OF BOOTSTRAPPING FOR ONE SAMPLE
                          #################################################################
-
+                        
 
                          if(length(groups_which)==1){
 
@@ -186,7 +196,7 @@ shinyServer(function(session, input, output) {
 
                              # data_sum object is used to plot for one group
 
-                             output$done = renderText("<b>Bootstrapping complete.")
+                             output$done = renderText("<b>BOOTSTRAPPING COMPLETE FOR ONE SAMPLE :)")
 
                          } # end of if statement for one group
 
@@ -307,7 +317,7 @@ shinyServer(function(session, input, output) {
 
                              # comb_data_sum is what is fed into the code for plotting two groups
 
-                             output$done = renderText("<b>Bootstrapping complete.")
+                             output$done = renderText("<b>BOOTSTRAPPING COMPLETE FOR TWO SAMPLES :)")
 
                          } # end of else if (length(groups_which == 2)){
 
@@ -328,6 +338,9 @@ shinyServer(function(session, input, output) {
                                  n_minplot = input$nminplot
                                  n_maxplot = input$nmaxplot
                                  x = data_sum
+                                 colour_exp = input$colour_exp
+                                 colour_extrap = input$colour_extrap
+                                 
 
                                  exp_data <- {{ x }} %>%
                                      dplyr::filter(dplyr::between(sample_size, {{ n_minplot }}, {{ n_maxplot }}))
@@ -345,17 +358,17 @@ shinyServer(function(session, input, output) {
                                      geom_line(data = both_data, aes(x = sample_size,
                                                                      y = width_ci,
                                                                      colour = id),
-                                               alpha = 0.8) +
-                                     scale_colour_manual(values = c("blue", "red"),
+                                               alpha = 1) +
+                                     scale_colour_manual(values = c(colour_exp, colour_extrap),
                                                          labels = c("Experimental", "Extrapolation")) +
                                      geom_ribbon(data = both_data, aes(ymin = sd_width_lower,
                                                                        ymax = sd_width_upper,
                                                                        fill = id),
                                                  linetype = 3,
-                                                 alpha = 0.2) +
-                                     scale_fill_manual(values = c("blue", "red"),
+                                                 alpha = input$alpha) +
+                                     scale_fill_manual(values = c(colour_exp, colour_extrap),
                                                        labels = c("Experimental", "Extrapolation")) +
-                                     theme_classic() +
+                                     ggthemes[[input$ggtheme]] +
                                      geom_hline(yintercept = 0,
                                                 linetype = "dashed") +
                                      labs(x = "Sample size (n)",
@@ -366,7 +379,7 @@ shinyServer(function(session, input, output) {
                                            axis.text = element_text(colour = "black"),
                                            axis.title.x = element_text(margin = unit(c(2, 0, 0, 0), "mm")),
                                            axis.title.y = element_text(margin = unit(c(0, 4, 0, 0), "mm")),
-                                           legend.position = "right") +
+                                           legend.position = input$legend) +
                                      guides(colour = FALSE)
 
                                  # Plot the width of the 95% CI
@@ -375,10 +388,10 @@ shinyServer(function(session, input, output) {
                                      geom_line(data = both_data, aes(x = sample_size,
                                                                      y = prop_ci_contain,
                                                                      colour = id),
-                                               alpha = 0.8) +
-                                     scale_colour_manual(values = c("blue", "red"),
+                                               alpha = 1) +
+                                     scale_colour_manual(values = c(colour_exp, colour_extrap),
                                                          labels = c("Experimental", "Extrapolation")) +
-                                     theme_classic() +
+                                     ggthemes[[input$ggtheme]] +
                                      geom_hline(yintercept = 0.90,
                                                 linetype = "dashed") +
                                      labs(x = "Sample size (n)",
@@ -389,7 +402,7 @@ shinyServer(function(session, input, output) {
                                            axis.text = element_text(colour = "black"),
                                            axis.title.x = element_text(margin = unit(c(2, 0, 0, 0), "mm")),
                                            axis.title.y = element_text(margin = unit(c(0, 4, 0, 0), "mm")),
-                                           legend.position = "right")
+                                           legend.position = input$legend)
 
                                  # Return the plots
                                  output$plotone = renderPlot(cowplot::plot_grid(width_plot, contain_plot, ncol = 2))
@@ -426,6 +439,8 @@ shinyServer(function(session, input, output) {
                                  n_minplot = input$nminplot
                                  n_maxplot = input$nmaxplot
                                  x = comb_data_sum
+                                 colour_exp = input$colour_exp
+                                 colour_extrap = input$colour_extrap
 
                                  # Create dataframe for experimental data
                                  exp_data <- {{ x }} %>%
@@ -445,14 +460,14 @@ shinyServer(function(session, input, output) {
                                                                      y = width_ci,
                                                                      colour = id),
                                                alpha = 0.8) +
-                                     scale_colour_manual(values = c("blue", "red"),
+                                     scale_colour_manual(values = c(colour_exp, colour_extrap),
                                                          labels = c("Experimental", "Extrapolation")) +
                                      geom_ribbon(data = both_data, aes(ymin = sd_width_lower,
                                                                        ymax = sd_width_upper,
                                                                        fill = id),
                                                  linetype = 3,
-                                                 alpha = 0.2) +
-                                     scale_fill_manual(values = c("blue", "red"),
+                                                 alpha = input$alpha) +
+                                     scale_fill_manual(values = c(colour_exp, colour_extrap),
                                                        labels = c("Experimental", "Extrapolation")) +
                                      theme_classic() +
                                      geom_hline(yintercept = 0,
@@ -480,14 +495,14 @@ shinyServer(function(session, input, output) {
                                                                        ymax = mean_upp_ci,
                                                                        fill = id),
                                                  linetype = 3,
-                                                 alpha = 0.2) +
-                                     scale_fill_manual(values = c("blue", "red"),
+                                                 alpha = input$alpha) +
+                                     scale_fill_manual(values = c(colour_exp, colour_extrap),
                                                        labels = c("Experimental", "Extrapolation")) +
                                      geom_point(data = both_data, aes(x = sample_size,
                                                                       y = mean_diff,
                                                                       colour = id),
                                                 alpha = 0.8) +
-                                     scale_colour_manual(values = c("blue", "red"),
+                                     scale_colour_manual(values = c(colour_exp, colour_extrap),
                                                          labels = c("Experimental", "Extrapolation")) +
                                      theme_classic() +
                                      geom_hline(yintercept = 0, linetype = "dashed") +
@@ -499,7 +514,7 @@ shinyServer(function(session, input, output) {
                                            axis.text = element_text(colour = "black"),
                                            axis.title.x = element_text(margin = unit(c(2, 0, 0, 0), "mm")),
                                            axis.title.y = element_text(margin = unit(c(0, 4, 0, 0), "mm")),
-                                           legend.position = c(0.8, 0.85),
+                                           legend.position = input$legend,
                                            legend.key = element_rect(linetype = "dashed")) +
                                      guides(colour = "none")
 
@@ -519,7 +534,7 @@ shinyServer(function(session, input, output) {
                                  output$downloadplot_twogroups <- downloadHandler(
                                      filename = function (){paste("2GroupsPlot", "svg", sep = '.')},
                                      content = function(file){
-                                         ggsave(file, cowplot::plot_grid(width_plot, ci_plot, ncol = 2))
+                                         ggsave(file, cowplot::plot_grid(width_plot, ci_plot, ncol = 1))
                                      }
                                  )
 
