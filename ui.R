@@ -74,8 +74,6 @@ shinyUI(fluidPage(
 
         ),
 
-
-
     mainPanel(
         tabsetPanel(
             tabPanel(
@@ -84,14 +82,11 @@ shinyUI(fluidPage(
                 downloadButton("downloadplot_onegroup", "Download Plot", style="color: #fff; background-color: darkblue; border-color: white; font-size:120%"),
                 plotOutput("plotone", width = 1000, height = 500) ),
 
-
             tabPanel(
                 strong("PLOT TWO GROUPS"),
                 br(), br(),
                 downloadButton("downloadplot_twogroups", "Download Plot", style="color: #fff; background-color: darkblue; border-color: white; font-size:120%"),
                 plotOutput("plottwo") )
-
             )
     )
-
 )))
