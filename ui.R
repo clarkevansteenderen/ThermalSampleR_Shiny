@@ -54,7 +54,7 @@ shinyUI(fluidPage(
             strong("Setting a seed will ensure consistent output if this analysis is run again at a later stage (provided all parameters remain the same).", style = "color:darkblue"),
             br(), br(),
             numericInput("seedval", "If yes, set a seed value:", value = 123, min = 0),
-            numericInput("iter", "Bootstrap Iterations:", value = 29, min = 1),
+            numericInput("iter", "Bootstrap Iterations:", value = 499, min = 1),
             numericInput("nminboots", "Minimum sample size to extrapolate simulations:", value = 3, min = 1),
             numericInput("nmaxboots", "Maximum sample size to extrapolate simulations:", value = 30),
             actionButton("simulate", strong("BOOTSTRAP"), style="color: #fff; background-color: darkblue; border-color: white; font-size:120%",  icon("check")),
