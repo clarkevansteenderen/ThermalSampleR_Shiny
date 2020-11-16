@@ -179,7 +179,7 @@ shinyServer(function(session, input, output) {
                                  dplyr::ungroup()
 
                              # Calculate summary statistics
-                             data_sum <- boot_comb %>%
+                             data_sum <- suppressMessages(boot_comb %>%
                                  dplyr::group_by({{ groups_col }}, sample_size) %>%
                                  dplyr::summarise(mean_low_ci    = mean(lower_ci),
                                                   mean_upp_ci    = mean(upper_ci),
@@ -192,7 +192,7 @@ shinyServer(function(session, input, output) {
                                                   prop_ci_contain = sum(ci_falls)/ {{ iter}},
                                                   iter=iter,
                                                   lower_ci=lower_ci,
-                                                  upper_ci=upper_ci)
+                                                  upper_ci=upper_ci))
 
                              # data_sum object is used to plot for one group
 
@@ -238,7 +238,7 @@ shinyServer(function(session, input, output) {
 
 
                              # Perform boostrap sampling
-                             boot_data <- df %>%
+                             boot_data <- suppressMessages(df %>%
                                  dplyr::group_by( {{ groups_col }} ) %>%
                                  tidyr::nest() %>%
                                  tidyr::crossing(sample_size = c({{ n_minboots }} : {{ n_maxboots }}),
@@ -254,7 +254,7 @@ shinyServer(function(session, input, output) {
                                                                                     mean_val = mean( {{ response }} ),
                                                                                     sd_val = stats::sd(( {{ response }} ))))) %>%
                                  dplyr::select({{ groups_col }}, sample_size, iter, calc) %>%
-                                 tidyr::unnest(cols = calc)
+                                 tidyr::unnest(cols = calc))
 
                              # Add CI's to raw bootstrap samples
                              boot_data <- boot_data %>%
@@ -302,7 +302,7 @@ shinyServer(function(session, input, output) {
                                                upper_ci     = mean_diff + error)
 
                              # Calculate summary statistics
-                             comb_data_sum <- comb_data %>%
+                             comb_data_sum <- suppressMessages(comb_data %>%
                                  dplyr::group_by(sample_size) %>%
                                  dplyr::summarise(mean_low_ci = mean(lower_ci),
                                                   mean_upp_ci    = mean(upper_ci),
@@ -313,7 +313,7 @@ shinyServer(function(session, input, output) {
                                                   sd_width_upper = width_ci + sd_width,
                                                   iter=iter,
                                                   lower_ci=lower_ci,
-                                                  upper_ci=upper_ci)
+                                                  upper_ci=upper_ci))
 
                              # comb_data_sum is what is fed into the code for plotting two groups
 
@@ -355,7 +355,7 @@ shinyServer(function(session, input, output) {
                                  # Plot the width of the 95% CI
                                  width_plot <- ggplot2::ggplot(data = {{ x }}, aes(x = sample_size,
                                                                                    y = width_ci)) +
-                                     geom_line(data = both_data, aes(x = sample_size,
+                                     geom_line(data = both_data, size = input$line_width, aes(x = sample_size,
                                                                      y = width_ci,
                                                                      colour = id),
                                                alpha = 1) +
@@ -385,7 +385,7 @@ shinyServer(function(session, input, output) {
                                  # Plot the width of the 95% CI
                                  contain_plot <- ggplot2::ggplot(data = {{ x }}, aes(x = sample_size,
                                                                                      y = prop_ci_contain)) +
-                                     geom_line(data = both_data, aes(x = sample_size,
+                                     geom_line(data = both_data, size = input$line_width, aes(x = sample_size,
                                                                      y = prop_ci_contain,
                                                                      colour = id),
                                                alpha = 1) +
@@ -456,7 +456,7 @@ shinyServer(function(session, input, output) {
                                  # Plot the width of the 95% CI
                                  width_plot <- ggplot2::ggplot(data = {{ x }}, aes(x = sample_size,
                                                                                    y = width_ci)) +
-                                     geom_line(data = both_data, aes(x = sample_size,
+                                     geom_line(data = both_data, size = input$line_width, aes(x = sample_size,
                                                                      y = width_ci,
                                                                      colour = id),
                                                alpha = 0.8) +
@@ -488,7 +488,7 @@ shinyServer(function(session, input, output) {
                                      geom_line(data = {{ x }}, aes(x = sample_size,
                                                                    y = mean_low_ci),
                                                linetype = "dashed") +
-                                     geom_line(data = {{ x }}, aes(x = sample_size,
+                                     geom_line(data = {{ x }},  aes(x = sample_size,
                                                                    y = mean_upp_ci),
                                                linetype = "dashed") +
                                      geom_ribbon(data = both_data, aes(ymin = mean_low_ci,
@@ -498,7 +498,7 @@ shinyServer(function(session, input, output) {
                                                  alpha = input$alpha) +
                                      scale_fill_manual(values = c(colour_exp, colour_extrap),
                                                        labels = c("Experimental", "Extrapolation")) +
-                                     geom_point(data = both_data, aes(x = sample_size,
+                                     geom_point(data = both_data, shape = as.numeric(input$point_shape), size = input$point_size, aes(x = sample_size,
                                                                       y = mean_diff,
                                                                       colour = id),
                                                 alpha = 0.8) +

@@ -67,12 +67,17 @@ shinyUI(fluidPage(
             selectInput("colour_exp", "Select Experimental Data Colour:", choices = c(colors()), selected = "blue"),
             selectInput("colour_extrap", "Select Extrapolation Data Colour:", choices = c(colors()), selected = "red"),
             sliderInput("alpha", "Colour Transparency:", min = 0, max = 1, value = 0.2),
+            sliderInput("line_width", "Line width:", min = 0.1, max = 5, value = 1),
+            selectInput("point_shape", "Point Shape (For Two Groups Plot):", choices = c("Squares" = 15, "Circles" = 16, "Triangles" = 17, "Diamonds" = 18, "Crosses" = 4, "Stars" = 8), selected = 16),
+            numericInput("point_size", "Point Size (For Two Groups Plot):", value = 2, min = 0),
             selectInput("legend", "Legend Position:", choices = c("top", "right", "bottom", "left", "none"), selected = "top"),
-            selectInput("ggtheme", "Select ggplot theme:", choices = names(ggthemes), selected = ggthemes["Classic"]),
+            selectInput("ggtheme", "Select ggplot Theme:", choices = names(ggthemes), selected = ggthemes["Classic"]),
             br(),
             actionButton("plot", strong(" PLOT"), style="color: #fff; background-color: darkblue; border-color: white; font-size:120%", icon("pencil"))
 
         ),
+
+
 
     mainPanel(
         tabsetPanel(
@@ -82,11 +87,14 @@ shinyUI(fluidPage(
                 downloadButton("downloadplot_onegroup", "Download Plot", style="color: #fff; background-color: darkblue; border-color: white; font-size:120%"),
                 plotOutput("plotone", width = 1000, height = 500) ),
 
+
             tabPanel(
                 strong("PLOT TWO GROUPS"),
                 br(), br(),
                 downloadButton("downloadplot_twogroups", "Download Plot", style="color: #fff; background-color: darkblue; border-color: white; font-size:120%"),
                 plotOutput("plottwo") )
+
             )
     )
+
 )))
