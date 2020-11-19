@@ -1,7 +1,4 @@
 
-library(shiny)
-library(magrittr)
-library(dplyr)
 
 ggthemes = list("Classic" = theme_classic(),
                 "Dark" = theme_dark(),
@@ -104,6 +101,11 @@ shinyServer(function(session, input, output) {
                              # START PROGRESS BAR
                              ####################
 
+                             # show_modal_progress_line() # show the modal window
+                             # update_modal_progress(0.2) # update progress bar value
+                             # remove_modal_progress() # remove it when done
+                             
+                             
                              progress <- Progress$new(session, min=1, max=2)
                              on.exit(progress$close())
 
@@ -197,12 +199,29 @@ shinyServer(function(session, input, output) {
                              # data_sum object is used to plot for one group
 
                              output$done = renderText("<b>BOOTSTRAPPING COMPLETE FOR ONE SAMPLE :)")
+                             
+                             #################################################################
+                             # DOWNLOAD THE DATA TABLE FOR ONE GROUP
+                             #################################################################
+                             
+                             
+                             output$download_table_one <- downloadHandler(
+                                 filename = function (){paste("one_group_data", "csv", sep = '.')},
+                                 content = function(file){write.csv(data_sum, file, row.names = F)}
+                                 
+                             )
+                             
+                             #################################################################
+                             
+                             #################################################################
 
                          } # end of if statement for one group
 
                              #################################################################
                              # END  OF BOOTSTRAPPING FOR ONE SAMPLE
                              #################################################################
+                         
+                        
 
                          else if (length(groups_which == 2)){
 
@@ -318,12 +337,30 @@ shinyServer(function(session, input, output) {
                              # comb_data_sum is what is fed into the code for plotting two groups
 
                              output$done = renderText("<b>BOOTSTRAPPING COMPLETE FOR TWO SAMPLES :)")
+                             
+                             #################################################################
+                             # DOWNLOAD THE DATA TABLE FOR TWO GROUPS
+                             #################################################################
+                             
+                             
+                             output$download_table_two <- downloadHandler(
+                                 filename = function (){paste("two_group_data", "csv", sep = '.')},
+                                 content = function(file){write.csv(comb_data_sum, file, row.names = F)}
+                                 
+                             )
+                             
+                             #################################################################
+                             
+                             #################################################################
+                             
+                             
 
                          } # end of else if (length(groups_which == 2)){
 
                              #################################################################
                              # END OF BOOTSTRAPPING FOR TWO SAMPLES
                              #################################################################
+                         
 
                          observeEvent(input$plot, {
 
@@ -374,7 +411,7 @@ shinyServer(function(session, input, output) {
                                      labs(x = "Sample size (n)",
                                           y = "Width of confidence interval (95% CI)",
                                           fill = "Data",
-                                          subtitle = "(a)") +
+                                          subtitle = paste("(a) ", input$col.inc)) +
                                      theme(panel.border = element_rect(colour = "black", fill = NA),
                                            axis.text = element_text(colour = "black"),
                                            axis.title.x = element_text(margin = unit(c(2, 0, 0, 0), "mm")),
@@ -397,7 +434,7 @@ shinyServer(function(session, input, output) {
                                      labs(x = "Sample size (n)",
                                           y = "Proportion of 95%'s \ncontaining median CTL",
                                           colour = "Data",
-                                          subtitle = "(b)") +
+                                          subtitle = paste("(b)", input$col.inc)) +
                                      theme(panel.border = element_rect(colour = "black", fill = NA),
                                            axis.text = element_text(colour = "black"),
                                            axis.title.x = element_text(margin = unit(c(2, 0, 0, 0), "mm")),
@@ -546,10 +583,6 @@ shinyServer(function(session, input, output) {
                          })
 
                      }) # end of observeEvent(input$simulate,
-
-
-
-
 
 
     }) # end of first observe

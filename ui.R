@@ -1,5 +1,5 @@
 
-mypackages <- c("shiny", "shinyhelper", "magrittr", "shinyFiles", "ggplot2", "svglite", "MASS", "ggplot2", "tidyr", "dplyr", "cowplot", "purrr")
+mypackages <- c("shiny", "shinyhelper", "magrittr", "shinyFiles", "ggplot2", "svglite", "MASS", "ggplot2", "tidyr", "dplyr", "cowplot", "purrr", "shinybusy")
 checkpkg <- mypackages[!(mypackages %in% installed.packages()[,"Package"])]
 if(length(checkpkg)) install.packages(checkpkg, dependencies = TRUE)
 
@@ -12,10 +12,9 @@ library(svglite)
 library(shinyhelper)
 library(shiny)
 library(magrittr)
-library(ggplot2)
 library(shinyFiles)
 library(dplyr)
-library(rhandsontable)
+library(shinybusy)
 
 ggthemes = list("Classic" = theme_classic(),
                 "Dark" = theme_dark(),
@@ -26,7 +25,7 @@ ggthemes = list("Classic" = theme_classic(),
                 "Void" = theme_void())
 
 shinyUI(fluidPage(
-
+    #add_busy_spinner(spin = "fading-circle"),
     #img(src='coldbug.jpg',  height = '250px', width = '200px', style = 'float:right;'),
     
     # Application title
@@ -85,6 +84,8 @@ shinyUI(fluidPage(
                 strong("PLOT ONE GROUP"),
                 br(), br(),
                 downloadButton("downloadplot_onegroup", "Download Plot", style="color: #fff; background-color: darkblue; border-color: white; font-size:120%"),
+                downloadButton("download_table_one", "Download Summary Table", style="color: #fff; background-color: forestgreen; border-color: white; font-size:120%"),
+                br(), br(), br(),
                 plotOutput("plotone", width = 1000, height = 500) ),
 
 
@@ -92,6 +93,8 @@ shinyUI(fluidPage(
                 strong("PLOT TWO GROUPS"),
                 br(), br(),
                 downloadButton("downloadplot_twogroups", "Download Plot", style="color: #fff; background-color: darkblue; border-color: white; font-size:120%"),
+                downloadButton("download_table_two", "Download Summary Table", style="color: #fff; background-color: forestgreen; border-color: white; font-size:120%"),
+                br(), br(), br(),
                 plotOutput("plottwo") )
 
             )
