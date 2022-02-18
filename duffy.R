@@ -35,14 +35,14 @@ equiv_tost = function(data,
                       equiv_margin = 1,
                       pop_n = 30,
                       ggtheme = theme_classic()) {
-  
+
   # -------------------------------------------------------------------------
   # Setup: -----------------------------------------------------------------
   # -------------------------------------------------------------------------
-  
-  
+
+
   # Custom functions are taken from Duffy et al. 2021 (Functional Ecology)
-  
+
   # FUNCTION: TOSTer
   TOSTer <- function(x, equiv_margin, set = NULL) {
     if (is.null(set))
@@ -54,7 +54,7 @@ equiv_tost = function(data,
     }
     # if used on simulated data where the 'set' is required
     # for subsetting
-    
+
     ChenTOST <-
       function(sub,
                spacdat,
@@ -76,7 +76,7 @@ equiv_tost = function(data,
             sample(1:length(spacdat), sub)
           })
         }
-        
+
         equiv <- sapply(smpl_mn, function(x) {
           tryCatch({
             # EnvStats::chenTTest #two one-sided
@@ -98,7 +98,7 @@ equiv_tost = function(data,
                              alternative = "less",
                              mu = full_mn + equiv_margin)$p.value  #standard t-test for other end
             mn_rez <- c(mn_upr, mn_lwr)
-            
+
             # EnvStats::varTest
             var_upr <-
               EnvStats::varTest(
@@ -120,7 +120,7 @@ equiv_tost = function(data,
                 conf.level = 0.95
               )$p.value
             var_rez <- c(var_upr, var_lwr)
-            
+
             mnvar_equiv <- c(NA, NA)
             ifelse(sum(is.na(mn_rez)) > 0, {
               mnvar_equiv[1] <- NA
@@ -132,7 +132,7 @@ equiv_tost = function(data,
             }, {
               mnvar_equiv[2] <- max(var_rez) < 0.05
             })
-            
+
             return(mnvar_equiv)
             # error handling if TOST procedure fails
             # (e.g. if data contain too many non-unique
@@ -141,7 +141,7 @@ equiv_tost = function(data,
             return(c(NA, NA))
           })
         })
-        
+
         mn_eq <- equiv[1, ]
         var_eq <- equiv[2, ]
         # calculate proportion of succesful tests
@@ -150,7 +150,7 @@ equiv_tost = function(data,
           length(var_eq[which(var_eq == T)]) / sum(is.finite(var_eq))
         ))
       }
-    
+
     res <- do.call(
       cbind,
       lapply(
@@ -169,7 +169,7 @@ equiv_tost = function(data,
     colnames(res2return) <- c("n", "mn_eq", "var_eq")
     return(data.frame(res2return))
   }
-  
+
   # Set vector of seeds for simulating replicated datasets (n = 50 datasets)
   pop_seeds <- c(
     809560L,
@@ -223,7 +223,7 @@ equiv_tost = function(data,
     109124L,
     253919L
   )
-  
+
   # Create subset of data
   # - Need to extract a vector of CTmin/CTmax estimates
   # - {{ data }} - Dataframe or tibble
@@ -232,18 +232,18 @@ equiv_tost = function(data,
   df <- {{ data }} %>%
     dplyr::filter( {{ column }} %in% {{ group }} ) %>%
     dplyr::pull( {{ y }} )
-  
+
   # Set parameters for source population(s) and equivalence testing
   # - Change as required.
   mn <- mean(df)                      # Mean of population(s)
   stdev <- sd(df)                     # Standard deviation of population(s)
   skews <- {{ skews }}                # Skew of population(s)
   equiv_margin <-  {{ equiv_margin }} # Equivalence margin for equivalence testing (celcius)
-  
+
   # -------------------------------------------------------------------------
   # Generate simulated populations: -----------------------------------------
   # -------------------------------------------------------------------------
-  
+
   # Generate randomly drawn population(s) comprising {{ pop_n }} individuals
   # - E.g. if pop_n = 30, each population will comprise up to 30 individuals
   # A number of different populations with characteristic skewness parameters
@@ -262,11 +262,11 @@ equiv_tost = function(data,
       alpha = skw)
     })
   }, stdev = stdev, seeds = pop_seeds)
-  
+
   # -------------------------------------------------------------------------
   # Run TOSTer simulations: -------------------------------------------------
   # -------------------------------------------------------------------------
-  
+
   # Run simulations
   tost_res <- parallel::mclapply(1:length(skews), function(x) {
     do.call(rbind,
@@ -277,11 +277,11 @@ equiv_tost = function(data,
               set = x
             ))
   })
-  
+
   # -------------------------------------------------------------------------
   # Process simulation output: ----------------------------------------------
   # -------------------------------------------------------------------------
-  
+
   # Summarise and format data for plotting (originally = 100)
   plot_dat_mean <-
     do.call(rbind, lapply(1:length(skews), function(x) {
@@ -309,7 +309,7 @@ equiv_tost = function(data,
         grp = skews[x]
       )
     }))
-  
+
   # Calculate confidence intervals for mean estimates
   plot_dat_mean <- plot_dat_mean %>%
     dplyr::group_by(grp, nsamp) %>%
@@ -325,8 +325,8 @@ equiv_tost = function(data,
     dplyr::mutate(ymax = dplyr::case_when(ymax > 0 &
                                             ymax <= 1 ~ ymax,
                                           ymax > 1 ~ 1))
-  
-  
+
+
   # Make mean TOST plot
   plot_mean <- ggplot(
     data = plot_dat_mean,
@@ -338,7 +338,7 @@ equiv_tost = function(data,
       fill = as.factor(grp),
       colour = as.factor(grp),
     )
-  ) + 
+  ) +
     scale_fill_manual(values = tte_cols) +
     scale_color_manual(values = tte_cols) +
     geom_ribbon(alpha = alpha_val, linetype = 0) +
@@ -351,11 +351,12 @@ equiv_tost = function(data,
     ) +
     scale_y_continuous(breaks = seq(0, 1, 0.25),
                        limits = c(0, 1)) +
+    scale_x_continuous(breaks=seq(round(max(plot_dat_mean$nsamp),0))) +
     theme(legend.position = "right") +
     guides(colour = "none") +
     ggtheme
-  
-  
+
+
   # Summarise and format data for plotting (originally = 100)
   plot_dat_var <-
     do.call(rbind, lapply(1:length(skews), function(x) {
@@ -383,7 +384,7 @@ equiv_tost = function(data,
         grp = skews[x]
       )
     }))
-  
+
   # Calculate confidence intervals for mean estimates
   plot_var_dat <- plot_dat_var %>%
     dplyr::filter(!stdev  %in% NA) %>%
@@ -400,8 +401,8 @@ equiv_tost = function(data,
     dplyr::mutate(ymax = dplyr::case_when(ymax > 0 &
                                             ymax <= 1 ~ ymax,
                                           ymax > 1 ~ 1))
-  
-  
+
+
   # Make var TOST plot
   plot_var <- ggplot(
     data = plot_var_dat,
@@ -426,20 +427,21 @@ equiv_tost = function(data,
     ) +
     scale_y_continuous(breaks = seq(0, 1, 0.25),
                        limits = c(0, 1)) +
+    scale_x_continuous(breaks=seq(round(max(plot_var_dat$nsamp),0)), expand = c(0, 0), limits = c(0, NA)) +
     theme(legend.position = "right") +
     guides(colour = "none") +
     ggtheme
-  
+
   # -------------------------------------------------------------------------
   # Make plot of results: ---------------------------------------------------
   # -------------------------------------------------------------------------
-  
+
   # Combine plots
   plots <- cowplot::plot_grid(plot_mean, plot_var, nrow = 1)
-  
+
   # Return combined plots
   return(plots)
-  
+
 } # End of function
 
 #############################################################################
