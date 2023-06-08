@@ -313,7 +313,7 @@ equiv_tost = function(data,
   # Calculate confidence intervals for mean estimates
   plot_dat_mean <- plot_dat_mean %>%
     dplyr::group_by(grp, nsamp) %>%
-    dplyr::summarise(
+    dplyr::reframe(
       mn = mn,
       stdev = stdev,
       ymin = mn - stdev,
@@ -389,7 +389,7 @@ equiv_tost = function(data,
   plot_var_dat <- plot_dat_var %>%
     dplyr::filter(!stdev  %in% NA) %>%
     dplyr::group_by(grp, nsamp) %>%
-    dplyr::summarise(
+    dplyr::reframe(
       mn = var_est,
       stdev = stdev,
       ymin = var_est - stdev,
