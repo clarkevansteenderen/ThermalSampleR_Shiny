@@ -55,9 +55,9 @@ shinyServer(function(session, input, output) {
                      {
                          groups = as.factor(data[[input$col.group]])
 
-                         if(length(levels(groups)) > 2) shinyalert::shinyalert("Warning", paste("Your data contains ", length(levels(groups)), " groups, or you have selected the incorrect group column. Please refresh the app and re-upload data with one, or two groups, or select the correct grouping column."), type = "warning")
+                         #if(length(levels(groups)) > 2) shinyalert::shinyalert("Warning", paste("Your data contains ", length(levels(groups)), " groups, or you have selected the incorrect group column. Please refresh the app and re-upload data with one, or two groups, or select the correct grouping column."), type = "warning")
                              #output$warning = renderText(c("<b>WARNING: Your data contains ", length(levels(groups)), "groups, or you have selected the incorrect group column. Please refresh the app and re-upload data with one, or two groups, or select the correct grouping column."))
-                         else output$warning = renderText("")
+                         #else output$warning = renderText("")
 
                          updateSelectInput(session, "col.inc", choices=levels(groups) ) # double brackets to access column by its name (alternative to number, or $ sign)
                          #req(input$col.inc) # wait for the user to select the names they want
