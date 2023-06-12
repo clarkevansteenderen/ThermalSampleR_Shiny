@@ -310,15 +310,18 @@ shinyServer(function(session, input, output) {
                                                            by = c("sample_size", "iter"))
 
                              # Let's keep only the columns we need, as things are about to get real
+                             # comb_data <- comb_data %>%
+                             #     dplyr::select(sample_size,
+                             #                   iter,
+                             #                   col.x,
+                             #                   mean_val.x,
+                             #                   sd_val.x,
+                             #                   col.y,
+                             #                   mean_val.y,
+                             #                   sd_val.y)
+
                              comb_data <- comb_data %>%
-                                 dplyr::select(sample_size,
-                                               iter,
-                                               col.x,
-                                               mean_val.x,
-                                               sd_val.x,
-                                               col.y,
-                                               mean_val.y,
-                                               sd_val.y)
+                               dplyr::select(1,2,3,4,5,10,11,12)
 
                              # Add student t CI's
                              comb_data <- comb_data %>%
