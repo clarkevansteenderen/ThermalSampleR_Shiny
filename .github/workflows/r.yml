@@ -52,7 +52,6 @@ jobs:
         shell: Rscript {0}
         run: |
           shiny::runTests(".", assert = TRUE)
-          viewTestDiff("../", interactive = FALSE)
 
       - name: Upload test results
         if: failure()
