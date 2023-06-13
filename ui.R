@@ -1,6 +1,6 @@
 
 mypackages <- c("shiny", "shinyhelper", "magrittr", "shinyFiles", "ggplot2", "svglite", "shinyalert",
-                "MASS", "ggplot2", "tidyr", "dplyr", "cowplot", "purrr", "shinybusy", "janitor", "sn", "EnvStats")
+                "MASS", "ggplot2", "tidyr", "dplyr", "cowplot", "purrr", "shinybusy", "janitor", "sn", "EnvStats", "shinytest)
 checkpkg <- mypackages[!(mypackages %in% installed.packages()[,"Package"])]
 if(length(checkpkg)) install.packages(checkpkg, dependencies = TRUE)
 
@@ -20,6 +20,7 @@ library(janitor)
 library(sn)
 library(EnvStats)
 library(shinyalert)
+library(shinytest)
 
 ggthemes = list("Classic" = theme_classic(),
                 "Dark" = theme_dark(),
