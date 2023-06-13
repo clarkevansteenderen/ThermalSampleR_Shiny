@@ -1,6 +1,6 @@
 
 mypackages <- c("shiny", "shinyhelper", "magrittr", "shinyFiles", "ggplot2", "svglite", "shinyalert",
-                "MASS", "ggplot2", "tidyr", "dplyr", "cowplot", "purrr", "shinybusy", "janitor", "sn", "EnvStats", "shinytest)
+                "MASS", "ggplot2", "tidyr", "dplyr", "cowplot", "purrr", "shinybusy", "janitor", "sn", "EnvStats", "shinytest")
 checkpkg <- mypackages[!(mypackages %in% installed.packages()[,"Package"])]
 if(length(checkpkg)) install.packages(checkpkg, dependencies = TRUE)
 
