@@ -24,6 +24,6 @@ jobs:
           r-version: ${{ matrix.r-version }}
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck", "shiny", "shinytest))
+          install.packages(c("remotes", "rcmdcheck", "shiny", "shinytest"))
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
