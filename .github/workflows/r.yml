@@ -29,4 +29,4 @@ jobs:
         shell: Rscript {0}
       - name: Run shinytest
         run: |
-          Rscript -e "library(shinytest); shinytest::testApp('ThermalSampleR_Shiny')"
+          Rscript -e "library(shinytest); shinytest::testApp(appDir = '.')"
