@@ -22,5 +22,8 @@ jobs:
         uses: r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a
         with:
           r-version: ${{ matrix.r-version }}
-      - name: Install shiny package
-        run: Rscript -e "install.packages('shiny')"
+      - name: Install dependencies
+        run: |
+          install.packages(c("remotes", "rcmdcheck", "shiny", "shinytest))
+          remotes::install_deps(dependencies = TRUE)
+        shell: Rscript {0}
