@@ -25,4 +25,4 @@ jobs:
       - name: Install shiny package
         run: Rscript -e "install.packages('shiny')"
       - name: Check
-        run: Rscript -e "shiny::runApp("ThermalSampleR_Shiny")"
+        run: Rscript -e "shiny::runApp('ThermalSampleR_Shiny')"
