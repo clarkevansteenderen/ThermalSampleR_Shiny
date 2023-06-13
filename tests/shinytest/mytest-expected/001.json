@@ -2,7 +2,7 @@
   "input": {
     "alpha": 0.2,
     "col.group": "insect_sp",
-    "col.inc": "Eccritotarsus catarinensis_ETG16_Summer",
+    "col.inc": "Catorhintha schaffneri_APM",
     "col.inc.tte": "Catorhintha schaffneri_APM",
     "col.response": "ct_val",
     "colour_exp": "blue",
