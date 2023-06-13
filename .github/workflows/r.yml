@@ -23,4 +23,4 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
       - name: Install shiny package
-        run: Rscript -e "install.packages('shiny', 'shinytest')"
+        run: Rscript -e "install.packages('shiny')"
