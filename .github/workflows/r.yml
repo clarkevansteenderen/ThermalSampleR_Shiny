@@ -27,3 +27,6 @@ jobs:
           install.packages(c("remotes", "rcmdcheck", "shiny", "shinytest"))
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
+      - name: Run shinytest
+        run: |
+          Rscript -e "library(shinytest); shinytest::testApp('tests')"
