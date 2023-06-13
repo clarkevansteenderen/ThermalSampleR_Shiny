@@ -6,7 +6,7 @@ ggthemes = list("Classic" = theme_classic(),
                 "Grey" = theme_grey(),
                 "Light" = theme_light(),
                 "Black/White" = theme_bw(),
-                "Void" = theme_void()) 
+                "Void" = theme_void())
 
 # needed to add in the session argument here to get the updateSelectInput function to work
 shinyServer(function(session, input, output) {
@@ -42,26 +42,27 @@ shinyServer(function(session, input, output) {
         if (is.null(file1)) {
             return(NULL)
         } # stops the app crashing while the user hasn't uploaded anything yet
-        
-        
+
+
         data = read.csv(file1$datapath)
 
         # update the drop-down selection menus to show the column names in the uploaded data
-        updateSelectInput(session,"col.group", choices=colnames(data))
-        updateSelectInput(session,"col.response", choices=colnames(data))
+        updateSelectInput(session,"col.group", choices=colnames(data), selected = colnames(data)[1])
+        updateSelectInput(session,"col.response", choices=colnames(data), selected = colnames(data)[2])
+        ?updateSelectInput
 
         # do the following when the user selects their group column
         observeEvent(input$col.group,
                      {
                          groups = as.factor(data[[input$col.group]])
 
-                         #if(length(levels(groups)) > 2) shinyalert::shinyalert("Warning", paste("Your data contains ", length(levels(groups)), " groups, or you have selected the incorrect group column. Please refresh the app and re-upload data with one, or two groups, or select the correct grouping column."), type = "warning")
-                             #output$warning = renderText(c("<b>WARNING: Your data contains ", length(levels(groups)), "groups, or you have selected the incorrect group column. Please refresh the app and re-upload data with one, or two groups, or select the correct grouping column."))
-                         #else output$warning = renderText("")
+                         # if(length(levels(groups)) > 2) shinyalert::shinyalert("Warning", paste("Your data contains ", length(levels(groups)), " groups, or you have selected the incorrect group column. Please refresh the app and re-upload data with one, or two groups, or select the correct grouping column."), type = "warning")
+                         #     #output$warning = renderText(c("<b>WARNING: Your data contains ", length(levels(groups)), "groups, or you have selected the incorrect group column. Please refresh the app and re-upload data with one, or two groups, or select the correct grouping column."))
+                         # else output$warning = renderText("")
 
                          updateSelectInput(session, "col.inc", choices=levels(groups) ) # double brackets to access column by its name (alternative to number, or $ sign)
                          #req(input$col.inc) # wait for the user to select the names they want
-                         
+
                          updateSelectInput(session, "col.inc.tte", choices=levels(groups) ) # double brackets to access column by its name (alternative to number, or $ sign)
                          #req(input$col.inc.tte) # wait for the user to select the names they want
 
@@ -80,11 +81,11 @@ shinyServer(function(session, input, output) {
                          iter = input$iter
                          n_minboots = input$nminboots
                          n_maxboots = input$nmaxboots
-                         
+
                          if(length(groups_which)==0) shinyalert::shinyalert("Warning", "Please select which groups you would like to include in the analysis, in the INPUT DATA tab", type = "warning")
                              #output$warning = renderText(strong("Please select which groups you would like to include in the analysis"))
                          else output$warning = renderText("")
-                         
+
                          if(input$setseed == 2) set.seed(input$seedval)
 
                          #output$text = renderText(length(groups_which))
@@ -96,7 +97,7 @@ shinyServer(function(session, input, output) {
                          #################################################################
                          # START OF BOOTSTRAPPING FOR ONE SAMPLE
                          #################################################################
-                        
+
 
                          if(length(groups_which)==1){
 
@@ -107,27 +108,27 @@ shinyServer(function(session, input, output) {
                              # show_modal_progress_line() # show the modal window
                              # update_modal_progress(0.2) # update progress bar value
                              # remove_modal_progress() # remove it when done
-                             
-                             
+
+
                              # progress <- Progress$new(session, min=1, max=2)
                              # on.exit(progress$close())
-                             # 
+                             #
                              # progress$set(message = 'Bootstrapping for one group....',
                              #              detail = 'Please wait.')
-                             # 
+                             #
                              # for (i in 1:2) {
                              #     progress$set(value = i)
                              #     Sys.sleep(0.5)
                              # }
-                             
-                             
+
+
                              ###################
                              # END PROGRESS BAR
                              ###################
 
-                             show_modal_spinner(text = "Successfully initiated. 
+                             show_modal_spinner(text = "Successfully initiated.
                                Please wait for the resampling to complete.") # show the modal window
-                             
+
                              boot_data <- {{ data }} %>%
                                  dplyr::group_by( {{ groups_col }} ) %>%
                                  dplyr::filter({{ groups_col }} %in% c( {{ groups_which }} )) %>%
@@ -141,7 +142,7 @@ shinyServer(function(session, input, output) {
                                                                                           # Sample with replacement
                                                                                           replace = TRUE))) %>%
                                  dplyr::mutate(calc = purrr::map(sample_data,
-                                                                 ~dplyr::summarize(.,
+                                                                 ~dplyr::reframe(.,
                                                                                    mean_val = mean( {{ response }} ),
                                                                                    sd_val = stats::sd(( {{ response }} ))))) %>%
                                  dplyr::select({{ groups_col }}, sample_size, iter, calc) %>%
@@ -204,24 +205,24 @@ shinyServer(function(session, input, output) {
                                                   upper_ci=upper_ci))
 
                              # data_sum object is used to plot for one group
-                             
+
                              remove_modal_spinner()
 
                              shinyalert::shinyalert("Complete", "Bootstrapping complete for one sample", type = "success")
-                             
+
                              #################################################################
                              # DOWNLOAD THE DATA TABLE FOR ONE GROUP
                              #################################################################
-                             
-                             
+
+
                              output$download_table_one <- downloadHandler(
                                  filename = function (){paste("one_group_data", "csv", sep = '.')},
                                  content = function(file){write.csv(data_sum, file, row.names = F)}
-                                 
+
                              )
-                             
+
                              #################################################################
-                             
+
                              #################################################################
 
                          } # end of if statement for one group
@@ -229,8 +230,8 @@ shinyServer(function(session, input, output) {
                              #################################################################
                              # END  OF BOOTSTRAPPING FOR ONE SAMPLE
                              #################################################################
-                         
-                        
+
+
 
                          else if (length(groups_which == 2)){
 
@@ -247,10 +248,10 @@ shinyServer(function(session, input, output) {
 
                              # progress <- Progress$new(session, min=1, max=2)
                              # on.exit(progress$close())
-                             # 
+                             #
                              # progress$set(message = 'Bootstrapping for two groups....',
                              #              detail = 'Please wait.')
-                             # 
+                             #
                              # for (i in 1:2) {
                              #     progress$set(value = i)
                              #     Sys.sleep(0.5)
@@ -260,9 +261,9 @@ shinyServer(function(session, input, output) {
                              # END PROGRESS BAR
                              ###################
 
-                             show_modal_spinner(text = "Successfully initiated. 
+                             show_modal_spinner(text = "Successfully initiated.
                                Please wait for the resampling to complete.") # show the modal window
-                             
+
                              # Filter which species to plot
                              df <- dplyr::filter({{ data }},
                                                  {{ groups_col }} %in% c( {{group1}}, {{ group2 }} ))
@@ -352,32 +353,32 @@ shinyServer(function(session, input, output) {
                              # comb_data_sum is what is fed into the code for plotting two groups
 
                              remove_modal_spinner()
-                             
+
                              shinyalert::shinyalert("Complete", "Bootstrapping complete for two samples", type = "success")
-                             
+
                              #################################################################
                              # DOWNLOAD THE DATA TABLE FOR TWO GROUPS
                              #################################################################
-                             
-                             
+
+
                              output$download_table_two <- downloadHandler(
                                  filename = function (){paste("two_group_data", "csv", sep = '.')},
                                  content = function(file){write.csv(comb_data_sum, file, row.names = F)}
-                                 
+
                              )
-                             
+
                              #################################################################
-                             
+
                              #################################################################
-                             
-                             
+
+
 
                          } # end of else if (length(groups_which == 2)){
 
                              #################################################################
                              # END OF BOOTSTRAPPING FOR TWO SAMPLES
                              #################################################################
-                         
+
 
                          observeEvent(input$plot, {
 
@@ -394,7 +395,7 @@ shinyServer(function(session, input, output) {
                                  x = data_sum
                                  colour_exp = input$colour_exp
                                  colour_extrap = input$colour_extrap
-                                 
+
 
                                  exp_data <- {{ x }} %>%
                                      dplyr::filter(dplyr::between(sample_size, {{ n_minplot }}, {{ n_maxplot }}))
@@ -409,7 +410,7 @@ shinyServer(function(session, input, output) {
                                  # Plot the width of the 95% CI
                                  width_plot <- ggplot2::ggplot(data = {{ x }}, aes(x = sample_size,
                                                                                    y = width_ci)) +
-                                     geom_line(data = both_data, size = input$line_width, aes(x = sample_size,
+                                     geom_line(data = both_data, linewidth = input$line_width, aes(x = sample_size,
                                                                      y = width_ci,
                                                                      colour = id),
                                                alpha = 1) +
@@ -439,7 +440,7 @@ shinyServer(function(session, input, output) {
                                  # Plot the width of the 95% CI
                                  contain_plot <- ggplot2::ggplot(data = {{ x }}, aes(x = sample_size,
                                                                                      y = prop_ci_contain)) +
-                                     geom_line(data = both_data, size = input$line_width, aes(x = sample_size,
+                                     geom_line(data = both_data, linewidth = input$line_width, aes(x = sample_size,
                                                                      y = prop_ci_contain,
                                                                      colour = id),
                                                alpha = 1) +
@@ -473,12 +474,12 @@ shinyServer(function(session, input, output) {
                                  output$downloadplot_onegroup <- downloadHandler(
                                      filename = function (){paste(input$file_name_one_group, input$plot_format_one_group, sep = '.')},
                                      content = function(file){
-                                         
-                                         width = as.numeric(input$w_plot_one_group) 
-                                         height = as.numeric(input$h_plot_one_group) 
+
+                                         width = as.numeric(input$w_plot_one_group)
+                                         height = as.numeric(input$h_plot_one_group)
                                          dpi = as.numeric(input$res_plot_one_group)
                                          units = input$unit_plot_one_group
-                                         
+
                                          ggsave(file, width = width, height = height, dpi = dpi, units = units, cowplot::plot_grid(width_plot, contain_plot, ncol = 2))
                                      } # use ggsave, as this cowplot is part of ggplot2. Won't work with just the normal saving
                                  )
@@ -516,7 +517,7 @@ shinyServer(function(session, input, output) {
                                  # Plot the width of the 95% CI
                                  width_plot <- ggplot2::ggplot(data = {{ x }}, aes(x = sample_size,
                                                                                    y = width_ci)) +
-                                     geom_line(data = both_data, size = input$line_width, aes(x = sample_size,
+                                     geom_line(data = both_data, linewidth = input$line_width, aes(x = sample_size,
                                                                      y = width_ci,
                                                                      colour = id),
                                                alpha = 0.8) +
@@ -594,12 +595,12 @@ shinyServer(function(session, input, output) {
                                  output$downloadplot_twogroups <- downloadHandler(
                                      filename = function (){paste(input$file_name_two_groups, input$plot_format_two_groups, sep = '.')},
                                      content = function(file){
-                                         
-                                         width = as.numeric(input$w_plot_two_groups) 
-                                         height = as.numeric(input$h_plot_two_groups) 
+
+                                         width = as.numeric(input$w_plot_two_groups)
+                                         height = as.numeric(input$h_plot_two_groups)
                                          dpi = as.numeric(input$res_plot_two_groups)
                                          units = input$unit_plot_two_groups
-                                         
+
                                          ggsave(file, width = width, height = height, dpi = dpi, units = units, cowplot::plot_grid(width_plot, ci_plot, ncol = 2))
                                      }
                                  )
@@ -610,26 +611,26 @@ shinyServer(function(session, input, output) {
                              #################################################################
 
                          })
-                         
+
 
                      }) # end of observeEvent(input$simulate,
 
         ##################################################################
-        # START OF TTE 
+        # START OF TTE
         #################################################################
-        
+
         observeEvent(input$plot_tte,{
-            
+
             skews = unlist( strsplit(input$skews, ",") )
             skews = as.numeric(skews)
-            
+
             if(length(input$tte_colrs) == 0) shinyalert::shinyalert("Issue", paste("Please select ", length(skews), " colours for the skewness parameters entered."), type = "warning")
-            
+
             else{
-                
-            show_modal_spinner(text = "Successfully initiated. 
+
+            show_modal_spinner(text = "Successfully initiated.
                                Please wait for the analysis to complete.") # show the modal window
-            
+
             toster_result = suppressWarnings( equiv_tost(data = data,
                                        column = get(input$col.group),
                                        group = input$col.inc.tte,
@@ -640,37 +641,37 @@ shinyServer(function(session, input, output) {
                                        #line_wd = input$line_width_tte,
                                        equiv_margin = input$equiv_margin,
                                        pop_n = input$pop_n,
-                                       ggtheme = ggthemes[[input$ggtheme_tte]] 
+                                       ggtheme = ggthemes[[input$ggtheme_tte]]
                                        ) )
-            
+
             remove_modal_spinner() # remove it when done
-           
+
             output$tte_plot = renderPlot(toster_result)
-            
+
             } # end of else
-            
+
             ###################################################
             # START DOWNLOAD TTE PLOT
             ###################################################
-            
+
             output$downloadplot_tte <- downloadHandler(
                 filename = function (){paste(input$file_name_tte, input$plot_format_tte, sep = '.')},
                 content = function(file){
-                    
-                    width = as.numeric(input$w_plot_tte) 
-                    height = as.numeric(input$h_plot_tte) 
+
+                    width = as.numeric(input$w_plot_tte)
+                    height = as.numeric(input$h_plot_tte)
                     dpi = as.numeric(input$res_plot_tte)
                     units = input$unit_plot_tte
-                    
+
                     ggsave(file, toster_result, width = width, height = height, dpi = dpi, units = units)
                 }
             )
-            
+
             ###################################################
             # END DOWNLOAD TTE PLOT
             ###################################################
         })
-        
+
         ##################################################################
         # END OF TTE FUNCTION
         #################################################################
