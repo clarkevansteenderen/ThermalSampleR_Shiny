@@ -24,40 +24,11 @@ jobs:
           r-version: ${{ matrix.r-version }}
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck", "shiny", "shinytest"))
+          install.packages(c("remotes", "rcmdcheck", "shiny", "shinytest2"))
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
         
-      #- name: Run shinytest
-       # run: |
-       #   Rscript -e "library(shinytest); shinytest::testApp(appDir = '.')"
-       
-      - name: Find PhantomJS path
-        id: phantomjs
-        run: |
-          echo "::set-output name=path::$(Rscript -e 'cat(shinytest:::phantom_paths()[[1]])')"
-      - name: Cache PhantomJS
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.phantomjs.outputs.path }}
-          key: ${{ runner.os }}-phantomjs
-          restore-keys: ${{ runner.os }}-phantomjs
-      - name: Install PhantomJS
-        shell: Rscript {0}
-        run: |
-          options(install.packages.check.source = "no")
-          if (!shinytest::dependenciesInstalled()) shinytest::installDependencies()
-
       - name: Run tests
         shell: Rscript {0}
         run: |
-          shiny::runTests(".", assert = TRUE)
-          #shinytest::testApp(".")
-          #shinytest::viewTestDiff(".", interactive = FALSE)
-
-      - name: Upload test results
-        if: failure()
-        uses: actions/upload-artifact@master
-        with:
-          name: ${{ runner.os }}-r${{ matrix.config.r }}-tests
-          path: tests
+          shinytest2::test_app(".", filter = "shinytest2")
